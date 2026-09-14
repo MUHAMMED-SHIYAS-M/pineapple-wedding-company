@@ -1,4 +1,4 @@
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
     if (req.method !== "POST") {
         return res.status(405).json({
             success: false,
@@ -29,6 +29,7 @@ module.exports = async (req, res) => {
 
         if (!apiKey) {
             console.error("RESEND_API_KEY is missing");
+
             return res.status(500).json({
                 success: false,
                 message: "Email service is not configured.",
@@ -38,7 +39,7 @@ module.exports = async (req, res) => {
         const resendResponse = await fetch("https://api.resend.com/emails", {
             method: "POST",
             headers: {
-                "Authorization": `Bearer ${apiKey}`,
+                Authorization: `Bearer ${apiKey}`,
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
@@ -56,7 +57,7 @@ module.exports = async (req, res) => {
           <p><strong>Guests:</strong> ${guests || "Not specified"}</p>
           <p><strong>Venue:</strong> ${venue || "Not specified"}</p>
 
-          <hr>
+          <hr />
 
           <p><strong>Message:</strong></p>
           <p>${message}</p>
@@ -92,4 +93,4 @@ module.exports = async (req, res) => {
             error: error.message,
         });
     }
-};
+}
