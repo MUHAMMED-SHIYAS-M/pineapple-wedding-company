@@ -31,37 +31,37 @@ const EVENT_TYPES = [
   'Other',
 ];
 
-const WA_NUMBER  = '917510523602';
+const WA_NUMBER = '917510523602';
 const WA_MESSAGE = encodeURIComponent(
   "Hello Pineapple Wedding Company, I'm interested in your event management services. I would like to discuss my event."
 );
 
 const INITIAL = {
-  name:       '',
-  phone:      '',
-  email:      '',
-  eventType:  '',
-  eventDate:  '',
-  venue:      '',
-  guests:     '',
-  message:    '',
+  name: '',
+  phone: '',
+  email: '',
+  eventType: '',
+  eventDate: '',
+  venue: '',
+  guests: '',
+  message: '',
 };
 
 export default function Contact() {
-  const [form,      setForm]      = useState(INITIAL);
-  const [errors,    setErrors]    = useState({});
+  const [form, setForm] = useState(INITIAL);
+  const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
-  const [sending,   setSending]   = useState(false);
+  const [sending, setSending] = useState(false);
 
   const validate = () => {
     const e = {};
-    if (!form.name.trim())    e.name    = 'Name is required';
+    if (!form.name.trim()) e.name = 'Name is required';
     if (!form.phone.trim() || !/^[0-9]{10}$/.test(form.phone.replace(/\s/g, '')))
-      e.phone   = 'Enter a valid 10-digit phone number';
+      e.phone = 'Enter a valid 10-digit phone number';
     if (!form.email.trim() || !/\S+@\S+\.\S+/.test(form.email))
-      e.email   = 'Enter a valid email address';
-    if (!form.eventType)      e.eventType = 'Please select an event type';
-    if (!form.message.trim()) e.message   = 'Please tell us about your event';
+      e.email = 'Enter a valid email address';
+    if (!form.eventType) e.eventType = 'Please select an event type';
+    if (!form.message.trim()) e.message = 'Please tell us about your event';
     return e;
   };
 
@@ -73,13 +73,42 @@ export default function Contact() {
 
   const onSubmit = async (e) => {
     e.preventDefault();
+
     const errs = validate();
-    if (Object.keys(errs).length > 0) { setErrors(errs); return; }
+
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs);
+      return;
+    }
+
     setSending(true);
-    // Simulate async delay (replace with actual backend call / EmailJS)
-    await new Promise(r => setTimeout(r, 800));
-    setSending(false);
-    setSubmitted(true);
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(form),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to send enquiry');
+      }
+
+      setSubmitted(true);
+      setForm(INITIAL);
+    } catch (error) {
+      console.error('Enquiry error:', error);
+
+      alert(
+        "Sorry, we couldn't send your enquiry. Please try again or contact us on WhatsApp."
+      );
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
